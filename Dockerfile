@@ -12,5 +12,3 @@ RUN apt-get update -qq && \
     chown -R jenkins:jenkins $JENKINS_HOME/
 
 USER jenkins
-
-VOLUME [$JENKINS_HOME, "/var/run/docker.sock"]
