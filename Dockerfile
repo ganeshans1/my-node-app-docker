@@ -1,12 +1,16 @@
 FROM jenkins/jenkins
 USER root
 
-RUN mkdir -p /tmp/download && \
- curl -L https://download.docker.com/linux/static/stable/x86_64/docker-18.03.1-ce.tgz | tar -xz -C /tmp/download && \
- rm -rf /tmp/download/docker/dockerd && \
- mv /tmp/download/docker/docker* /usr/local/bin/ && \
- rm -rf /tmp/download && \
- groupadd -g 999 docker && \
- usermod -aG staff,docker jenkins
+RUN apt-get update -qq && \
+    apt-get install -qqy apt-transport-https ca-certificates curl gnupg2 software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    apt-key fingerprint 0EBFCD88 && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    apt-get update -qq && \
+    apt-get install -qqy docker-ce && \
+    usermod -aG docker jenkins && \
+    chown -R jenkins:jenkins $JENKINS_HOME/
 
-user jenkins
+USER jenkins
+
+VOLUME [$JENKINS_HOME, "/var/run/docker.sock"]
